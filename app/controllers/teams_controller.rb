@@ -30,11 +30,15 @@ class TeamsController < ApplicationController
   end
 
   def update
-    if @team.update(team_params)
-      redirect_to @team, notice: I18n.t('views.messages.update_team')
+    if @team.owner == current_user
+      if @team.update(team_params)
+        redirect_to @team, notice: I18n.t('views.messages.update_team')
+      else
+        flash.now[:error] = I18n.t('views.messages.failed_to_save_team')
+        render :edit
+      end
     else
-      flash.now[:error] = I18n.t('views.messages.failed_to_save_team')
-      render :edit
+      redirect_to @team, notice: "チームオーナー以外は編集できません"
     end
   end
 
