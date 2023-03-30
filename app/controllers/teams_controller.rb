@@ -1,6 +1,6 @@
 class TeamsController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_team, only: %i[show edit update destroy]
+  before_action :set_team, only: %i[show edit update destroy change_owner]
 
   def index
     @teams = Team.all
@@ -49,6 +49,16 @@ class TeamsController < ApplicationController
 
   def dashboard
     @team = current_user.keep_team_id ? Team.find(current_user.keep_team_id) : current_user.teams.first
+  end
+
+  # change_owner_team_path POST   /teams/:id/change_owner(.:format)
+  def change_owner
+    new_owner_id = params[:new_owner_id].to_i
+    # 権限譲渡の実装
+    # Teamのowner_idをupdateする
+    @team.update(owner_id: new_owner_id)
+    # Teamのオーナーが変更されたら、新しくオーナーになったユーザーに通知メールが飛ぶ
+    redirect_to @team, notice: "権限譲渡しました!"
   end
 
   private
